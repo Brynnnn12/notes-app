@@ -37,7 +37,7 @@ const Login = () => {
         localStorage.setItem("token", response.data.accesToken);
         toast.success("Login berhasil!");
         // console.log("Token disimpan"); //Tambahkan log ini.
-        navigate("/dashboard");
+        navigate("/");
         // console.log("Navigasi ke dashboard"); //Tambahkan log ini.
       } else {
         setError("Token tidak ditemukan pada respon");

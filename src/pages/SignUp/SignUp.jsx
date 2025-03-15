@@ -50,7 +50,7 @@ const SignUp = () => {
       if (response.data && response.data.accesToken) {
         localStorage.setItem("token", response.data.accesToken);
         // console.log("Token disimpan"); //Tambahkan log ini.
-        navigate("/dashboard");
+        navigate("/");
         // console.log("Navigasi ke dashboard"); //Tambahkan log ini.
       } else {
         setError("Token tidak ditemukan pada respon");
