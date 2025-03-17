@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import TagInput from "../../components/input/TagInput";
-import { MdClose } from "react-icons/md";
+import {
+  MdClose,
+  MdTitle,
+  MdDescription,
+  MdLocalOffer,
+  MdSave,
+} from "react-icons/md";
 import axiosInstance from "../../utils/axiosInstance";
 import { toast } from "react-toastify";
 
@@ -9,7 +15,10 @@ const AddEditNote = ({ noteData, type, getAllNotes, onClose }) => {
   const [content, setContent] = useState(noteData?.content || "");
   const [tags, setTags] = useState(noteData?.tags || []);
   const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const addNewNote = async () => {
+    setIsSubmitting(true);
     try {
       const response = await axiosInstance.post("/add-note", {
         title,
@@ -20,112 +29,149 @@ const AddEditNote = ({ noteData, type, getAllNotes, onClose }) => {
       if (response.data && response.data.note) {
         toast.success("Catatan berhasil ditambahkan!", {
           position: "top-right",
-          autoClose: 3000, // Notifikasi akan hilang dalam 3 detik
+          autoClose: 3000,
         });
 
         getAllNotes();
         onClose();
       }
     } catch (error) {
-      const errorMessage =
+      toast.error(
         error.response?.data?.message ||
-        "Terjadi kesalahan saat menambahkan catatan.";
-
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 3000,
-      });
+          "Terjadi kesalahan saat menambahkan catatan.",
+        { position: "top-right", autoClose: 3000 }
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
   const editNote = async () => {
-    //EDIT API CALL
-    const noteId = noteData._id;
+    setIsSubmitting(true);
     try {
-      const response = await axiosInstance.put("/edit-note/" + noteId, {
+      const response = await axiosInstance.put("/edit-note/" + noteData._id, {
         title,
         content,
         tags,
       });
+
       if (response.data && response.data.note) {
         toast.success("Catatan berhasil diperbarui!", {
           position: "top-right",
-          autoClose: 3000, // Notifikasi hilang dalam 3 detik
+          autoClose: 3000,
         });
 
         getAllNotes();
         onClose();
       }
     } catch (error) {
-      const errorMessage =
+      toast.error(
         error.response?.data?.message ||
-        "Terjadi kesalahan saat memperbarui catatan.";
-
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 3000,
-      });
+          "Terjadi kesalahan saat memperbarui catatan.",
+        { position: "top-right", autoClose: 3000 }
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
   const handleAddNote = () => {
-    if (!title) {
-      setError("Please enter a title");
-      return;
-    }
-    if (!content) {
-      setError("Please enter a content");
-      return;
-    }
+    if (!title) return setError("Masukkan judul catatan");
+    if (!content) return setError("Masukkan isi catatan");
     setError("");
 
-    if (type === "edit") {
-      //EDIT API CALL
-      editNote();
-    } else {
-      //ADD API CALL
-      addNewNote();
-    }
+    type === "edit" ? editNote() : addNewNote();
   };
+
   return (
-    <div className="max-w-md mx-auto relative   rounded-lg">
-      <button
-        onClick={onClose}
-        className="w-10 h-10  rounded-full flex items-center justify-center absolute -top-3 -right-3"
-      >
-        <MdClose className="text-xl text-slate-400" />
-      </button>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold">TITLE</label>
-          <input
-            type="text"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="text-xl text-slate-950 outline-none border border-slate-300 rounded-lg p-2 transition duration-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          />
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div className="relative w-full max-w-lg mx-4 md:mx-0 bg-white rounded-xl shadow-2xl p-6 sm:p-8 transform transition-all scale-95 hover:scale-100">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition"
+          aria-label="Close"
+        >
+          <MdClose className="text-2xl text-gray-500" />
+        </button>
+
+        {/* Header */}
+        <div className="mb-6 pb-2 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-800">
+            {type === "edit" ? "Edit Catatan" : "Tambah Catatan"}
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {type === "edit"
+              ? "Perbarui catatan Anda"
+              : "Buat catatan baru untuk ide-ide Anda"}
+          </p>
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold">CONTENT</label>
-          <textarea
-            placeholder="Content"
-            rows={5}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="text-xl text-slate-950 bg-slate-50 p-2 rounded-lg outline-none border border-slate-300 transition duration-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold">TAGS</label>
-          <TagInput tags={tags} setTags={setTags} />
+
+        {/* Form */}
+        <div className="flex flex-col gap-4">
+          {/* Title Field */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <MdTitle className="text-blue-500" />
+              Judul Catatan
+            </label>
+            <input
+              type="text"
+              placeholder="Masukkan judul"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full mt-1 px-4 py-3 text-gray-800 border rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            />
+          </div>
+
+          {/* Content Field */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <MdDescription className="text-blue-500" />
+              Isi Catatan
+            </label>
+            <textarea
+              placeholder="Tulis isi catatan Anda..."
+              rows={4}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full mt-1 px-4 py-3 text-gray-800 border rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200 resize-none"
+            />
+          </div>
+
+          {/* Tags Field */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <MdLocalOffer className="text-blue-500" />
+              Tag
+            </label>
+            <TagInput tags={tags} setTags={setTags} />
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm border border-red-200">
+              {error}
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            className={`mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2 font-medium transition ${
+              isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+            }`}
+            onClick={handleAddNote}
+            disabled={isSubmitting}
+          >
+            <MdSave />
+            {isSubmitting
+              ? "Menyimpan..."
+              : type === "edit"
+              ? "Perbarui Catatan"
+              : "Tambah Catatan"}
+          </button>
         </div>
       </div>
-      {error && <p className="text-red-500">{error}</p>}
-      <button
-        className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition duration-200 w-full"
-        onClick={handleAddNote}
-      >
-        {type === "edit" ? "UPDATE" : "ADD"}
-      </button>
     </div>
   );
 };

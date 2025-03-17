@@ -108,9 +108,9 @@ const Home = () => {
         value={searchQuery}
         onSearchNote={handleSearchNote}
       />
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4">
         {filteredNotes.length > 0 ? (
-          <div className="grid grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mt-4">
             {filteredNotes.map((item) => (
               <NoteCards
                 key={item._id}
@@ -126,8 +126,27 @@ const Home = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center text-gray-500 mt-10">
-            <p>Tidak ada catatan yang tersedia.</p>
+          <div className="flex flex-col items-center justify-center text-center text-gray-500 mt-10 py-12">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-16 w-16 mb-4 text-gray-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <p className="text-lg font-medium">
+              Tidak ada catatan yang tersedia.
+            </p>
+            <p className="text-sm mt-2">
+              Tambahkan catatan baru untuk mulai mencatat.
+            </p>
           </div>
         )}
       </div>
